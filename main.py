@@ -11,6 +11,7 @@ import requests
 def upload_file_to_s3(local_file_path, remote_file_path):
     url = "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
     role_name = requests.get(url).text.strip()
+    print("role name:", role_name)
 
     # retrieve temporary security token
     token_url = "http://169.254.169.254/latest/api/token"
