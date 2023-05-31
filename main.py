@@ -20,6 +20,7 @@ def upload_file_to_s3(local_file_path, remote_file_path):
 
     else:
         response = s3.list_buckets()
+        json_data = response
 
         if len(response['Buckets']) < 1:
             print("There is no bucket in your aws account !!!")
@@ -27,7 +28,9 @@ def upload_file_to_s3(local_file_path, remote_file_path):
             exit()
 
         # Get the bucket with the latest creation date
-        latest_bucket = max(response["Buckets"], key=lambda x: parse(x["CreationDate"]))
+        latest_bucket = max(json_data["Buckets"], key=lambda x: x["CreationDate"] if isinstance(x["CreationDate"],
+                                                                                                datetime.datetime) else parse(
+            x["CreationDate"]))
         bucket_name = latest_bucket["Name"]
 
         print("last created bucket name", bucket_name)
