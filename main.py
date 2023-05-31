@@ -1,62 +1,39 @@
 import asyncio
-import json
-import time
 import datetime
+import json
 import os
+import time
+
 import boto3
 from binance import AsyncClient, BinanceSocketManager
-import requests
 
 
 def upload_file_to_s3(local_file_path, remote_file_path):
-    url = "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
-    role_name = requests.get(url).text.strip()
-    print("role name:", role_name)
+    s3 = boto3.client('s3')
 
-    # retrieve temporary security token
-    token_url = "http://169.254.169.254/latest/api/token"
-    headers = {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}
-    token = requests.put(token_url, headers=headers).text.strip()
+    bucket_name_file = '/home/ec2-user/binance_5/bucket_name'
+    if os.path.exists(bucket_name_file):
+        with open(bucket_name_file, "r") as f:
+            bucket_name = f.read()
 
-    # retrieve security credentials
-    security_credentials_url = f"http://169.254.169.254/latest/meta-data/iam/security-credentials/{role_name}"
-    headers = {"X-aws-ec2-metadata-token": token}
-    response = requests.get(security_credentials_url, headers=headers)
-    print(response)
+    else:
+        response = s3.list_buckets()
+        print(json.dumps(response, indent=4, sort_keys=True, default=str))
+        if len(response['Buckets']) < 1:
+            print("There is no bucket in you aws account !!!")
+            print("Create a bucket firstly")
+            exit()
 
-    # # parse the security credentials
-    # credentials = response.json()
-    #
-    # s3 = boto3.client(
-    #     's3',
-    #     aws_access_key_id=credentials['AccessKeyId'],
-    #     aws_secret_access_key=credentials['SecretAccessKey'],
-    #     aws_session_token=credentials['Token']
-    # )
-    #
-    # bucket_name_file = '/home/ec2-user/binance_5/bucket_name'
-    # if os.path.exists(bucket_name_file):
-    #     with open(bucket_name_file, "r") as f:
-    #         bucket_name = f.read()
-    #
-    # else:
-    #     response = s3.list_buckets()
-    #     print(json.dumps(response, indent=4, sort_keys=True, default=str))
-    #     if len(response['Buckets']) < 1:
-    #         print("There is no bucket in you aws account !!!")
-    #         print("Create a bucket firstly")
-    #         exit()
-    #
-    #     buckets = sorted(response["Buckets"], key=lambda b: b["CreationDate"], reverse=True)
-    #     bucket_name = buckets[0]["Name"]
-    #
-    #     print("last created bucket name", bucket_name)
-    #     f = open(bucket_name_file, 'w')
-    #     f.write(bucket_name)
-    #     f.close()
-    #
-    # with open(local_file_path, "rb") as f:
-    #     s3.upload_fileobj(f, bucket_name, remote_file_path)
+        buckets = sorted(response["Buckets"], key=lambda b: b["CreationDate"], reverse=True)
+        bucket_name = buckets[0]["Name"]
+
+        print("last created bucket name", bucket_name)
+        f = open(bucket_name_file, 'w')
+        f.write(bucket_name)
+        f.close()
+
+    with open(local_file_path, "rb") as f:
+        s3.upload_fileobj(f, bucket_name, remote_file_path)
 
 
 async def main():
