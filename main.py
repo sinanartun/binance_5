@@ -53,7 +53,7 @@ async def main():
             # Gelen datanın içindeki unixtime'ı (milisecond cinsinden) dakikaya çeviriyoruz.
             # print(res)
             if new_file_time != active_file_time:
-                # f.close()
+                f.close()
                 # Eğer mesajın içindeki Unix dakikası active_file_time'a eşit değil ise 1dk'lık biriktirme süresi,
                 # dolmuş ve biriktirilen datanın bucket'a yüklenmesi gerekli.
 
@@ -63,9 +63,9 @@ async def main():
                 upload_file_to_s3(local_data_file_path, remote_data_file_path)
                 # Bir dakikalık datası dolmuş olan local_data_file'ı, Bucket'a yüklüyoruz.
                 active_file_time = new_file_time
-                # new_local_data_file_path = '/home/ec2-user/binance_4/data/' + str(int(active_file_time * 60)) + '.tsv'
+                new_local_data_file_path = '/home/ec2-user/binance_5/' + str(int(active_file_time * 60)) + '.tsv'
 
-
+                f = open(new_local_data_file_path, 'w')
 
             timestamp = f"{datetime.datetime.fromtimestamp(int(res['T'] / 1000)):%Y-%m-%d %H:%M:%S}"
             maker = '0'
