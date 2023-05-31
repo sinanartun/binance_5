@@ -1,6 +1,7 @@
-import requests
-import boto3
 import json
+
+import boto3
+import requests
 
 url_token = "http://169.254.169.254/latest/api/token"
 url_meta_data = "http://169.254.169.254/latest/meta-data/iam/info"
@@ -17,8 +18,7 @@ if response.status_code == 200:
     response = requests.get(url_meta_data, headers=headers)
 
     s3 = boto3.client(
-        's3',
-        aws_session_token=token
+        's3'
     )
     res = s3.list_buckets()
     print(json.dumps(res, indent=4, sort_keys=True, default=str))
