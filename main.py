@@ -16,6 +16,8 @@ def upload_file_to_s3(local_file_path, remote_file_path):
     if os.path.exists(bucket_name_file):
         with open(bucket_name_file, "r") as f:
             bucket_name = f.read()
+            with open(local_file_path, "rb") as f:
+                s3.upload_fileobj(f, bucket_name, remote_file_path)
 
     else:
         response = s3.list_buckets()
@@ -34,9 +36,8 @@ def upload_file_to_s3(local_file_path, remote_file_path):
         f = open(bucket_name_file, 'w')
         f.write(bucket_name)
         f.close()
-
-    with open(local_file_path, "rb") as f:
-        s3.upload_fileobj(f, bucket_name, remote_file_path)
+        with open(local_file_path, "rb") as f:
+            s3.upload_fileobj(f, bucket_name, remote_file_path)
 
 
 async def main():
