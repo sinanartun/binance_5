@@ -1,7 +1,7 @@
 import requests
 
 url_token = "http://169.254.169.254/latest/api/token"
-url_meta_data = "http://169.254.169.254/latest/meta-data/iam/"
+url_meta_data = "http://169.254.169.254/latest/meta-data/iam/info"
 headers = {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}
 
 # Request to get the token
