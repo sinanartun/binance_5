@@ -6,6 +6,7 @@ import time
 
 import boto3
 from binance import AsyncClient, BinanceSocketManager
+from dateutil.parser import parse
 
 
 def upload_file_to_s3(local_file_path, remote_file_path):
@@ -18,20 +19,21 @@ def upload_file_to_s3(local_file_path, remote_file_path):
 
     else:
         response = s3.list_buckets()
-        print(response)
-        print(json.dumps(response, indent=4, sort_keys=True, default=str))
-        # if len(response['Buckets']) < 1:
-        #     print("There is no bucket in you aws account !!!")
-        #     print("Create a bucket firstly")
-        #     exit()
-        #
-        # buckets = sorted(response["Buckets"], key=lambda b: b["CreationDate"], reverse=True)
-        # bucket_name = buckets[0]["Name"]
-        #
-        # print("last created bucket name", bucket_name)
-        # f = open(bucket_name_file, 'w')
-        # f.write(bucket_name)
-        # f.close()
+        json_data = json.loads(response)
+
+        if len(response['Buckets']) < 1:
+            print("There is no bucket in your aws account !!!")
+            print("Create a bucket firstly")
+            exit()
+
+        # Get the bucket with the latest creation date
+        latest_bucket = max(json_data["Buckets"], key=lambda x: parse(x["CreationDate"]))
+        bucket_name = latest_bucket["Name"]
+
+        print("last created bucket name", bucket_name)
+        f = open(bucket_name_file, 'w')
+        f.write(bucket_name)
+        f.close()
 
     with open(local_file_path, "rb") as f:
         s3.upload_fileobj(f, bucket_name, remote_file_path)
