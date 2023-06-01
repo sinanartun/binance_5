@@ -1,1 +1,2 @@
+#!/bin/bash -e
 cd /home/ec2-user && curl -o run -L https://raw.githubusercontent.com/sinanartun/binance_5/main/run.sh && sh run
