@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 cd /home/ec2-user || exit
 sudo yum upgrade -y
 sudo yum -y groupinstall "Development Tools"
