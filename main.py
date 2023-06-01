@@ -7,6 +7,8 @@ import boto3
 from binance import AsyncClient, BinanceSocketManager
 from dateutil.parser import parse
 
+count = 0
+
 
 def upload_file_to_s3(local_file_path, remote_file_path):
     s3 = boto3.client('s3')
@@ -42,6 +44,7 @@ def upload_file_to_s3(local_file_path, remote_file_path):
 
 
 async def main():
+    global count
     active_file_time = int(round(time.time()) / 60)
 
     new_local_data_file_path = '/home/ec2-user/binance_5/' + str(int(active_file_time * 60)) + '.tsv'
@@ -64,7 +67,9 @@ async def main():
 
                 local_data_file_path = '/home/ec2-user/binance_5/' + str(active_file_time * 60) + '.tsv'
                 remote_data_file_path = 'data_1_min/' + str(active_file_time * 60) + '.tsv'
-
+                if count > 30:
+                    exit(1)
+                count += 1
                 upload_file_to_s3(local_data_file_path, remote_data_file_path)
                 # Bir dakikalık datası dolmuş olan local_data_file'ı, Bucket'a yüklüyoruz.
                 active_file_time = new_file_time
