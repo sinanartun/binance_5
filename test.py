@@ -24,7 +24,7 @@ def get_all_kinesis_streams(region_name):
 
     all_streams = []
     for page in paginator.paginate():
-        all_streams.extend(page['StreamNames'])
+        all_streams.extend(page)
 
     return all_streams
 
