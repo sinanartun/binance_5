@@ -1,5 +1,7 @@
 import asyncio
 import datetime
+import os
+from operator import itemgetter
 
 import boto3
 import requests
@@ -20,11 +22,47 @@ def get_current_region_imds_v2():
     return region_data['region']
 
 
+def get_all_kinesis_streams():
+    region_name = get_current_region_imds_v2()
+    kinesis = boto3.client('kinesis', region_name=region_name)
+    paginator = kinesis.get_paginator('list_streams')
+
+    all_streams = []
+    for page in paginator.paginate():
+        for stream_name in page['StreamNames']:
+            stream_description = kinesis.describe_stream(StreamName=stream_name)
+            creation_time = stream_description['StreamDescription']['StreamCreationTimestamp']
+            all_streams.append({
+                'StreamName': stream_name,
+                'CreationTime': creation_time,
+            })
+
+    return sorted(all_streams, key=itemgetter('CreationTime'), reverse=True)
+
+
 async def main():
+    current_region = get_current_region_imds_v2()
     kinesis_client = boto3.client(
         'kinesis',
-        region_name=get_current_region_imds_v2()
+        region_name=current_region
     )
+
+    kinesis_stream_name_path = '/home/ec2-user/binance_5/kinesis_stream_name'
+
+    if os.path.exists(kinesis_stream_name_path):
+        with open(kinesis_stream_name_path, "r") as f:
+            kinesis_stream_name = f.read()
+    else:
+        kinesis_streams = get_all_kinesis_streams()
+
+        if len(kinesis_streams) < 1:
+            print(f"There is no Kinesis Data Stream in your Region: {current_region} !!!")
+            print(f"Create a Kinesis Data Stream in: {current_region} !!!")
+            exit()
+        kinesis_stream_name = kinesis_streams[0]['StreamName']
+        f = open(kinesis_stream_name_path, 'w')
+        f.write(kinesis_stream_name)
+        f.close()
 
     binance_client = await AsyncClient.create()
     bsm = BinanceSocketManager(binance_client)
@@ -49,11 +87,11 @@ async def main():
 
             print(line)
             try:
-                # response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
-                response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
+                response = kinesis_client.put_record(StreamName=kinesis_stream_name, Data=line,
+                                                     PartitionKey=str(res['t']))
 
             except ClientError:
-                print("Couldn't put record in stream 'binance'")
+                print(f"Couldn't put record in stream {kinesis_stream_name}")
                 raise
             else:
                 print(response)
