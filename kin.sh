@@ -8,5 +8,6 @@ sudo chmod 2775 /home/ec2-user/binance_5 && find /home/ec2-user/binance_5 -type 
 cd binance_5 || exit
 python3 -m venv venv
 source venv/bin/activate
-pip3 install -r requirements.txt
+/home/ec2-user/binance_5/venv/bin/python3 -m pip install --upgrade pip
+pip install -r requirements.txt
 python3 kin.py
