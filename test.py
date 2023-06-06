@@ -1,3 +1,4 @@
+import boto3
 import requests
 
 
@@ -17,5 +18,17 @@ def get_current_region_imds_v2():
     return region_data['region']
 
 
+def get_all_kinesis_streams(region_name):
+    kinesis = boto3.client('kinesis', region_name=region_name)
+    paginator = kinesis.get_paginator('list_streams')
+
+    all_streams = []
+    for page in paginator.paginate():
+        all_streams.extend(page['StreamNames'])
+
+    return all_streams
+
+
 if __name__ == '__main__':
-    print(get_current_region_imds_v2())
+    streams = get_all_kinesis_streams(get_current_region_imds_v2())
+    print(streams)

@@ -2,14 +2,28 @@ import asyncio
 import datetime
 
 import boto3
+import requests
 from binance import AsyncClient, BinanceSocketManager
 from botocore.exceptions import ClientError
+
+
+def get_current_region_imds_v2():
+    token_url = 'http://169.254.169.254/latest/api/token'
+    token_headers = {'X-aws-ec2-metadata-token-ttl-seconds': '21600'}  # Token TTL set to 6 hours
+    token_response = requests.put(token_url, headers=token_headers)
+    token = token_response.content.decode('utf-8')
+    metadata_headers = {'X-aws-ec2-metadata-token': token}
+    region_url = 'http://169.254.169.254/latest/dynamic/instance-identity/document'
+    region_response = requests.get(region_url, headers=metadata_headers)
+    region_data = region_response.json()
+
+    return region_data['region']
 
 
 async def main():
     kinesis_client = boto3.client(
         'kinesis',
-        region_name='eu-north-1'
+        region_name=get_current_region_imds_v2()
     )
 
     binance_client = await AsyncClient.create()
