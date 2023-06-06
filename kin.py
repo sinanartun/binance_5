@@ -9,6 +9,7 @@ from binance import AsyncClient, BinanceSocketManager
 from botocore.exceptions import ClientError
 
 
+# deneme
 def get_current_region_imds_v2():
     token_url = 'http://169.254.169.254/latest/api/token'
     token_headers = {'X-aws-ec2-metadata-token-ttl-seconds': '21600'}  # Token TTL set to 6 hours
