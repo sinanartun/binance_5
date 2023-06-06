@@ -36,7 +36,7 @@ async def main():
             print(line)
             try:
                 # response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
-                response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str('1'))
+                response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
 
             except ClientError:
                 print("Couldn't put record in stream 'binance'")

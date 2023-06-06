@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 cd /home/ec2-user || exit
 sudo dnf upgrade -y
 sudo dnf install --assumeyes python3-pip libffi-devel openssl-devel bzip2-devel git
