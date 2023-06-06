@@ -1,3 +1,5 @@
+from operator import itemgetter
+
 import boto3
 import requests
 
@@ -24,9 +26,15 @@ def get_all_kinesis_streams(region_name):
 
     all_streams = []
     for page in paginator.paginate():
-        all_streams.extend(page)
+        for stream_name in page['StreamNames']:
+            stream_description = kinesis.describe_stream(StreamName=stream_name)
+            creation_time = stream_description['StreamDescription']['StreamCreationTimestamp']
+            all_streams.append({
+                'StreamName': stream_name,
+                'CreationTime': creation_time,
+            })
 
-    return all_streams
+    return sorted(all_streams, key=itemgetter('CreationTime'), reverse=True)
 
 
 if __name__ == '__main__':
