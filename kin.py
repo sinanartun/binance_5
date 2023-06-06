@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 async def main():
     kinesis_client = boto3.client(
         'kinesis',
-        region_name='eu-north-1'
+        region_name='eu-west-1'
     )
 
     binance_client = await AsyncClient.create()
