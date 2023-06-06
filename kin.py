@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 async def main():
     kinesis_client = boto3.client(
         'kinesis',
-        region_name='eu-west-1'
+        region_name='eu-north-1'
     )
 
     binance_client = await AsyncClient.create()
@@ -35,7 +35,8 @@ async def main():
 
             print(line)
             try:
-                response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
+                # response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str(res['t']))
+                response = kinesis_client.put_record(StreamName='awsbc5', Data=line, PartitionKey=str('1'))
 
             except ClientError:
                 print("Couldn't put record in stream 'binance'")
