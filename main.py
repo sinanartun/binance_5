@@ -67,7 +67,7 @@ async def main():
 
                 local_data_file_path = '/home/ec2-user/binance_5/' + str(active_file_time * 60) + '.tsv'
                 remote_data_file_path = 'data_1_min/' + str(active_file_time * 60) + '.tsv'
-                if count > 3:
+                if count > 30:
                     exit(1)
                 count += 1
                 upload_file_to_s3(local_data_file_path, remote_data_file_path)
