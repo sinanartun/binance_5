@@ -13,7 +13,7 @@ count = 0
 def upload_file_to_s3(local_file_path, remote_file_path):
     s3 = boto3.client('s3')
 
-    bucket_name_file = '/home/ec2-user/binance_5/bucket_name'
+    bucket_name_file = '/home/ec2-user/binance/bucket_name'
     if os.path.exists(bucket_name_file):
         with open(bucket_name_file, "r") as f:
             bucket_name = f.read()
@@ -47,7 +47,8 @@ async def main():
     global count
     active_file_time = int(round(time.time()) / 60)
 
-    new_local_data_file_path = '/home/ec2-user/binance_5/' + str(int(active_file_time * 60)) + '.tsv'
+    new_local_data_file_path = '/home/ec2-user/binance/data2/' + str(int(active_file_time * 60)) + '.tsv'
+    # new_local_data_file_path = '/Users/miuul/Documents/PyCharmProjects/binance_5/data/' + str(int(active_file_time * 60)) + '.tsv'
     #
     f = open(new_local_data_file_path, 'w')
     client = await AsyncClient.create()
@@ -65,20 +66,23 @@ async def main():
                 # Eğer mesajın içindeki Unix dakikası active_file_time'a eşit değil ise 1dk'lık biriktirme süresi,
                 # dolmuş ve biriktirilen datanın bucket'a yüklenmesi gerekli.
 
-                local_data_file_path = '/home/ec2-user/binance_5/' + str(active_file_time * 60) + '.tsv'
+                local_data_file_path = '/home/ec2-user/binance/data2/' + str(active_file_time * 60) + '.tsv'
+                # local_data_file_path = '/Users/miuul/Documents/PyCharmProjects/binance_5/data/' + str(active_file_time * 60) + '.tsv'
                 remote_data_file_path = 'data_1_min/' + str(active_file_time * 60) + '.tsv'
-                if count > 30:
+                if count > 99:
                     exit(1)
                 count += 1
-                upload_file_to_s3(local_data_file_path, remote_data_file_path)
+                # upload_file_to_s3(local_data_file_path, remote_data_file_path)
                 # Bir dakikalık datası dolmuş olan local_data_file'ı, Bucket'a yüklüyoruz.
                 active_file_time = new_file_time
-                new_local_data_file_path = '/home/ec2-user/binance_5/' + str(int(active_file_time * 60)) + '.tsv'
+                new_local_data_file_path = '/home/ec2-user/binance/data2/' + str(int(active_file_time * 60)) + '.tsv'
+                # new_local_data_file_path = '/Users/miuul/Documents/PyCharmProjects/binance_5/data/' + str(int(active_file_time * 60)) + '.tsv'
 
                 f = open(new_local_data_file_path, 'w')
 
             timestamp = f"{datetime.datetime.fromtimestamp(int(res['T'] / 1000)):%Y-%m-%d %H:%M:%S}"
             maker = '0'
+            print(res)
             if res['m']:  # Satın almış ise 1, satış yaptı ise 0.
                 maker = '1'
 
