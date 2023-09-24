@@ -72,7 +72,7 @@ async def main():
                 if count > 99:
                     exit(1)
                 count += 1
-                # upload_file_to_s3(local_data_file_path, remote_data_file_path)
+                upload_file_to_s3(local_data_file_path, remote_data_file_path)
                 # Bir dakikalık datası dolmuş olan local_data_file'ı, Bucket'a yüklüyoruz.
                 active_file_time = new_file_time
                 new_local_data_file_path = '/home/ec2-user/binance_5/' + str(int(active_file_time * 60)) + '.tsv'
